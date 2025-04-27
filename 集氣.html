@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>麻將招財神集氣程式 超ㄎㄧㄤV5 完整版</title>
+  <style>
+    body { font-family: '微軟正黑體', sans-serif; text-align: center; padding: 30px; background-color: #fff7e6; transition: background-color 0.5s; }
+    button { font-size: 22px; padding: 8px 16px; margin: 8px; background-color: gold; border: none; border-radius: 8px; cursor: pointer; }
+    #message { margin-top: 20px; font-size: 28px; color: #d2691e; font-weight: bold; }
+    #lucky, #ritual, #engong, #energy { margin-top: 16px; font-size: 20px; color: #333; }
+    #energyBar { width: 280px; height: 28px; background-color: #ccc; border-radius: 14px; margin: 12px auto; overflow: hidden; }
+    #energyFill { height: 100%; width: 0%; background-color: limegreen; transition: width 0.4s; }
+    .flash { animation: flash 0.5s; }
+    @keyframes flash { 0%,100% { background-color: #ffeb3b; } 50% { background-color: #ffa500; } }
+    .shake { animation: shake 0.5s; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
+  </style>
+</head>
+<body>
+
+  <h1>麻將招財神集氣機 V5 🎉</h1>
+  <button id="summonBtn" onclick="summon()">招財神啦！</button>
+  <button id="chargeBtn" onclick="charge()" style="display:none;">開始集氣⚡</button>
+
+  <div id="message"></div>
+  <div id="lucky"></div>
+  <div id="ritual"></div>
+  <div id="engong"></div>
+
+  <div id="energy">
+    <strong>集氣能量：</strong>
+    <div id="energyBar">
+      <div id="energyFill"></div>
+    </div>
+  </div>
+
+  <audio id="powerupSound" src="music.mp3"></audio>
+
+  <script>
+    // 100 創意集氣任務
+    const allTasks = [
+      "雙手合十，嘴巴念「一自摸，二自摸，天天自摸」三遍",
+      "用左手摸自己的右臉頰，再用右手摸麻將桌面三下",
+      "模仿麻將牌被切牌的聲音『啪嗒啪嗒』五次",
+      "站起來轉一圈，並大喊「胡爆全場！」",
+      "拿起一張條子牌在額頭畫十字",
+      "向財神像敬香並行三鞠躬禮",
+      "用筊杯擲筊兩次直到聖筊為止",
+      "用手掌輕拍牌面並大喊「開運去」",
+      "閉眼默念自己的幸運數字五秒",
+      "跟隔壁桌大喊「我一定贏！」然後握拳",
+      "對著朋友吹口哨三次",
+      "仰頭看天高喊「天助我也」",
+      "低頭向地面輕聲說一句「我來了」",
+      "像跳舞一樣揮動手臂十下",
+      "手指輕敲桌面八下",
+      "拍打自己的肩膀三下",
+      "對著手機自拍敬禮一張",
+      "吃一口手邊的零食並比讚",
+      "對著娛樂城的牌桌比三腳貓手勢",
+      "握拳比出「勝利V」手勢",
+      "用手比出「大心」手勢",
+      "模仿財神翁聲音說「來罩我」",
+      "舉起手中的牌高過頭頂",
+      "跪地摸地板一次",
+      "手掌合十向自己祈禱",
+      "雙手在胸前畫心形",
+      "大聲喊出「自摸！」",
+      "咬一口檯邊口香糖",
+      "摸摸自己的帽子",
+      "把骰子拋向空中再接住",
+      "用兩根手指比耶",
+      "對牌桌拍一拍說「加油」",
+      "深吸三口氣",
+      "輕敲桌腳三下",
+      "伸懶腰大喊「準備好了」",
+      "用指尖輕觸鼻尖三次",
+      "閉眼用力點頭五次",
+      "對著麻將牌抽一張假裝看",
+      "摸摸脖子下方自摸牌符",
+      "抽出手機拍一張牌桌照",
+      "比出「OK」手勢",
+      "對自己微笑三秒",
+      "輕輕彈桌面五次",
+      "大喊「財神在！」",
+      "模仿麻將開局「咚咚咚」聲",
+      "雙手高舉並搖動",
+      "用筷子指著自己說「我！」",
+      "側耳傾聽牌桌聲音",
+      "輕輕鼓掌三下",
+      "舉起左手敬天",
+      "右手敬地兩秒",
+      "雙手合十祈禱",
+      "對牌桌鞠躬一次",
+      "摸摸頭頂想像發光",
+      "對桌面打招呼",
+      "輕聲耳語：「我求你了」",
+      "拍拍自己大腿三次",
+      "把手放胸口感受心跳",
+      "模仿錢幣碰撞聲「叮嗚」三次",
+      "把食物放到桌邊祈福",
+      "舉手機自拍大笑",
+      "摸摸煙灰缸",
+      "雙手打開接光",
+      "深呼吸冥想十秒",
+      "對天鞠躬一秒",
+      "手指劃十字架",
+      "模仿地心吸力",
+      "輕踢桌腳一次",
+      "邊走邊說「走路帶風」",
+      "用一根手指畫圈",
+      "比出愛心手勢",
+      "模仿麻將「碰」聲",
+      "大笑三聲",
+      "跳一小段舞",
+      "吼出「走啊！」",
+      "閉眼指向朋友",
+      "用鼻子聞牌桌",
+      "假裝投擲麻將",
+      "甩甩手指",
+      "比出拳頭",
+      "貼耳聽桌面",
+      "用手刮桌面",
+      "模仿金幣落地聲",
+      "手指輕敲牌背",
+      "跺腳一次",
+      "彎腰摸腳尖",
+      "打個響指",
+      "輕拍肩膀",
+      "握拳放到胸前",
+      "摸摸脖子",
+      "看手機預測開胡率",
+      "大喊「天公保佑！」",
+      "用手指劃出金元寶形狀",
+      "模仿風聲「呼呼」吹三次",
+      "輕輕拍打自己的心口三下並低聲說「胡」"
+    ];
+    let tasksRemaining = [...allTasks];
+
+    // 幸運動作列表
+    const actions = ['左手摸右耳','單腳跳三下','嘴巴學「碰碰碰」','對鏡子笑三次','轉圈圈喊自摸','摸摸麻將牌背面','敬拜檯面三次','打個響指','唱首麻將之歌','跪地祈禱','比「勝」手勢','貼桌滑行','嘴巴念咒語'];
+
+    // 恩公牌列表
+    const mahjongTiles = [
+      ...Array.from({length: 9}, (_, i) => `${i+1}條`),
+      ...Array.from({length: 9}, (_, i) => `${i+1}筒`),
+      ...Array.from({length: 9}, (_, i) => `${i+1}萬`),
+      '東風', '南風', '西風', '北風', '紅中', '發財', '白板'
+    ];
+
+    let energy = 0, summoned = false, superGod = false, superCharge = false, superTimer;
+    const summonBtn = document.getElementById('summonBtn');
+    const chargeBtn = document.getElementById('chargeBtn');
+    const msg = document.getElementById('message');
+    const lucky = document.getElementById('lucky');
+    const ritual = document.getElementById('ritual');
+    const engong = document.getElementById('engong');
+    const fill = document.getElementById('energyFill');
+
+    function summon() {
+      clearTimeout(superTimer);
+      // 重置畫面狀態
+      msg.innerHTML = '';
+      ritual.innerHTML = '';
+      document.body.style.backgroundColor = '#fff7e6';
+      energy = 0; fill.style.width = '0%';
+      tasksRemaining = [...allTasks]; superCharge = false;
+
+      const chance = Math.random();
+      if (chance < 0.5) {
+        msg.innerHTML = '幹！財神今天跑去泡溫泉啦，自己再召喚！';
+        summonBtn.innerText = '重新召喚！'; chargeBtn.style.display = 'none'; summoned = false; return;
+      }
+      // 成功召喚
+      summoned = true; summonBtn.style.display = 'none'; chargeBtn.style.display = 'inline-block'; summonBtn.innerText = '招財神啦！';
+      // 今日恩公牌 & 幸運動作
+      const a = mahjongTiles[Math.floor(Math.random()*mahjongTiles.length)]; let b;
+      do { b = mahjongTiles[Math.floor(Math.random()*mahjongTiles.length)]; } while (b === a);
+      engong.innerHTML = `🀄 今日恩公牌： ${a} 、 ${b}`;
+      const act = actions[Math.floor(Math.random()*actions.length)];
+      lucky.innerHTML = `💃 今日幸運動作：<b>${act}</b>`;
+      // 超級財神 30%
+      if (Math.random() < 0.3) {
+        superGod = true;
+        msg.innerHTML = '哇操！超級財神降臨！！！<br>快在 5 秒內開始集氣！';
+        document.body.style.backgroundColor = '#ffd700';
+        superTimer = setTimeout(() => { if (superGod) { msg.innerHTML = '超級財神不耐煩，跑掉了！ 😱'; resetSummon(); } }, 5000);
+        return;
+      }
+      superGod = false; msg.innerHTML = '哇操！財神到啦！！！準備集氣！'; document.body.style.backgroundColor = '#ffeb3b';
+    }
+
+    function charge() {
+      if (!summoned) { alert('幹你娘！財神都沒來你集三小氣！'); return; }
+      // 超級財神快速集氣
+      if (superGod && !superCharge) {
+        superCharge = true; msg.innerHTML = '超級財神降臨！快速集氣中！';
+        let timer = setInterval(() => { if (energy >= 100) { clearInterval(timer); msg.innerHTML = '你成功安撫超級財神！集氣+100！🔥'; energy = 100; fill.style.width = '100%'; setTimeout(resetSummon,1000);} else if (Math.random()<0.1){ energy+=10; fill.style.width=energy+'%'; } }, 500);
+        setTimeout(()=>{
+n      }, 5000); return; }
+      // 正常集氣
+      const r = Math.random(); if (r<0.2) { msg.innerHTML='幹！集氣時財神被嚇跑了⋯⋯重來！'; resetSummon(); return;} if (r<0.4){ msg.innerHTML='誘惑模式，繼續按一次集氣就好～'; return;} energy = Math.min(100,energy+10); fill.style.width = energy+'%';
+      // 任務
+      if (tasksRemaining.length===0) tasksRemaining=[...allTasks];
+      const idx = Math.floor(Math.random()*tasksRemaining.length);
+      const task = tasksRemaining.splice(idx,1)[0];
+      ritual.innerHTML = `<strong>新集氣任務：</strong><br>${task}`;
+      document.body.classList.add('flash'); msg.classList.add('shake');
+      setTimeout(()=>{document.body.classList.remove('flash'); msg.classList.remove('shake');},500);
+      if (energy===100){ setTimeout(()=>{ alert('幹！集氣爆表！！！今晚胡爆十連發！🔥'); energy=0; fill.style.width='0%';},300); }
+      document.getElementById('powerupSound').currentTime=0; document.getElementById('powerupSound').play();
+    }
+
+    function resetSummon() {
+      summoned=false; superGod=false; superCharge=false; energy=0; fill.style.width='0%'; chargeBtn.style.display='none'; summonBtn.style.display='inline-block'; summonBtn.innerText='重新召喚！';
+    }
+  </script>
+
+</body>
+</html>
